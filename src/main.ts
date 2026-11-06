@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Milosh Milinkov. All rights reserved.
+// Copyright (c) 2026 Miloš Milinkov. All rights reserved.
 // Proprietary: no use, copying, modification or deployment without written permission. See LICENSE.
 
 import '@fontsource-variable/inter'

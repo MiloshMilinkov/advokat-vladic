@@ -1,6 +1,6 @@
 # Advokatska kancelarija Vladić – website
 
-> **© 2026 Milosh Milinkov. All rights reserved.** This repository is public for viewing only.
+> **© 2026 Miloš Milinkov. All rights reserved.** This repository is public for viewing only.
 > It is **not** open source: you may not copy, reuse, modify, deploy or redistribute any part of it,
 > including the design and content. See [LICENSE](LICENSE).
 
