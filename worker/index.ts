@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Milosh Milinkov. All rights reserved.
+// Proprietary: no use, copying, modification or deployment without written permission. See LICENSE.
+
 import { apiPaths, INITIAL_DATA_ID } from '@shared/api-paths'
 import { adminHead, blogIndexHead, homeHead, notFoundHead, postHead, practiceHead, tariffHead, type HeadData } from '@shared/head'
 import { practiceAreaBySlug, practiceAreas } from '@shared/practice-areas'

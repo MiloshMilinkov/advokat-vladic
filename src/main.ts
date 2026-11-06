@@ -1,3 +1,6 @@
+// Copyright (c) 2026 Milosh Milinkov. All rights reserved.
+// Proprietary: no use, copying, modification or deployment without written permission. See LICENSE.
+
 import '@fontsource-variable/inter'
 import './styles/main.css'
 import './styles/additions.css'

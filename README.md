@@ -1,5 +1,9 @@
 # Advokatska kancelarija Vladić – website
 
+> **© 2026 Milosh Milinkov. All rights reserved.** This repository is public for viewing only.
+> It is **not** open source: you may not copy, reuse, modify, deploy or redistribute any part of it,
+> including the design and content. See [LICENSE](LICENSE).
+
 Vue 3 + TypeScript + Vite rebuild of the law office site, served by a Cloudflare
 Worker with the blog stored in **Cloudflare D1** (SQLite).
 
@@ -61,3 +65,8 @@ Personal photos are placeholders: `public/images/placeholders/portrait.svg` (abo
 Without configuration the form opens the visitor's e-mail client addressed to the office
 (same as the original site). Set `VITE_CONTACT_ENDPOINT` (e.g. a Formspree URL) at build
 time to post submissions instead.
+
+## License
+
+Proprietary — all rights reserved. No permission is granted to use, copy, modify, deploy or
+distribute this code or its content. See [LICENSE](LICENSE). Security issues: see [SECURITY.md](SECURITY.md).
