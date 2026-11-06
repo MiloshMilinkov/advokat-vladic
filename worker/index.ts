@@ -32,7 +32,7 @@ export default {
     if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'GET, HEAD' } })
 
     // Vite dev-server internals (only exist during `npm run dev`).
-    if (/^\/(@|node_modules\/|src\/|shared\/|__)/.test(path)) return env.ASSETS.fetch(request)
+    if (isLocal(url) && /^\/(@|node_modules\/|src\/|shared\/|__)/.test(path)) return env.ASSETS.fetch(request)
 
     // Static files that are not in the bypass list (or do not exist).
     if (/\.[a-z0-9]{2,5}$/i.test(path)) {
@@ -172,7 +172,10 @@ async function renderPage(request: Request, env: Env, url: URL, page: Page): Pro
   headers.set('X-Content-Type-Options', 'nosniff')
   headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
-  if (!isLocal(url)) headers.set('Content-Security-Policy', CSP)
+  if (!isLocal(url)) {
+    headers.set('Content-Security-Policy', CSP)
+    headers.set('Strict-Transport-Security', 'max-age=31536000')
+  }
   if (page.head.noindex) headers.set('X-Robots-Tag', 'noindex')
 
   return new Response(request.method === 'HEAD' ? null : rewritten.body, { status: page.status, headers })

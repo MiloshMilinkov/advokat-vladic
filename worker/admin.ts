@@ -22,7 +22,8 @@ async function authorized(request: Request, env: Env): Promise<boolean> {
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
-const URL_RE = /^(\/[^\s]*|https:\/\/[^\s]+)$/
+// Site-relative ("/images/…", but not protocol-relative "//host") or https URLs.
+const URL_RE = /^(\/(?!\/)[^\s]*|https:\/\/[^\s]+)$/
 
 type Validation = { ok: true; value: PostInput } | { ok: false; error: string }
 
