@@ -4,14 +4,17 @@ import type { HeadData } from '@shared/head'
  * Canonical origin. The Worker renders the canonical link on first load, so we
  * reuse its origin; locally (Vite without Worker HTML) fall back to production.
  */
-export const siteOrigin: string = (() => {
+let origin: string | undefined
+export function siteOrigin(): string {
+  if (origin) return origin
   const href = document.querySelector<HTMLLinkElement>('link[rel="canonical"]')?.href
   try {
-    return href ? new URL(href).origin : 'https://advokatvladic.rs'
+    origin = href ? new URL(href).origin : 'https://advokatvladic.rs'
   } catch {
-    return 'https://advokatvladic.rs'
+    origin = 'https://advokatvladic.rs'
   }
-})()
+  return origin
+}
 
 function upsert(selector: string, create: () => HTMLElement, attr: string, value: string) {
   let el = document.head.querySelector<HTMLElement>(selector)
@@ -30,7 +33,7 @@ const meta = (key: 'name' | 'property', name: string) => () => {
 
 /** Applies route metadata on client-side navigation (first load is server-rendered). */
 export function applyHead(head: HeadData) {
-  const abs = (p: string) => (/^https?:\/\//.test(p) ? p : siteOrigin + p)
+  const abs = (p: string) => (/^https?:\/\//.test(p) ? p : siteOrigin() + p)
   document.title = head.title
   upsert('meta[name="description"]', meta('name', 'description'), 'content', head.description)
   upsert(

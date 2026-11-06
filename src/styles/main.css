@@ -3,6 +3,28 @@
  * components, motion). Additions for the Vue version live in additions.css.
  */
 
+/*
+ * Inter, subset like the original site (wght 300–600): basic Latin + punctuation,
+ * and a tiny file with the Serbian letters č ć đ š ž. Both are preloaded in
+ * index.html; the browser fetches a file only if the page uses its characters.
+ */
+@font-face {
+  font-family: "Inter Variable";
+  src: url("../assets/fonts/inter-basic.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 300 600;
+  font-style: normal;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2010-2026, U+2032-2033, U+2039-203A, U+20AC, U+2122, U+2190-2193;
+}
+@font-face {
+  font-family: "Inter Variable";
+  src: url("../assets/fonts/inter-serbian.woff2") format("woff2");
+  font-display: swap;
+  font-weight: 300 600;
+  font-style: normal;
+  unicode-range: U+0106-0107, U+010C-010D, U+0110-0111, U+0160-0161, U+017D-017E;
+}
+
 /* Metric-matched Arial fallback to avoid layout shift while Inter loads. */
 @font-face {
   font-family: "Inter fallback";

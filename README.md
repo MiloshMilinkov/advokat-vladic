@@ -25,6 +25,13 @@ Worker with the blog stored in **Cloudflare D1** (SQLite).
   canonical URL, Open Graph tags and JSON-LD (LegalService, Service, BlogPosting,
   BreadcrumbList), and inlines the page's API data, so the first view needs no extra
   request and link previews/crawlers see real metadata.
+* Pages are **server-rendered**: the Worker renders the Vue app (`src/entry-server.ts`,
+  imported as `@app-ssr`) into the HTML, and the browser hydrates it with the same
+  inlined data. Crawlers without JavaScript see the full text, headings and links.
+  `/admin/` stays browser-only. If a server render ever fails, the page falls back to
+  rendering in the browser.
+* The stylesheet is inlined into each page and the Inter font is subset to the
+  characters the site uses (`src/assets/fonts/`, Latin + Serbian letters, wght 300–600).
 * Unknown URLs return a real `404`; URLs without a trailing slash redirect (`301`)
   to the same scheme as the original site.
 * `/sitemap.xml` is generated from the database, so new posts are included automatically.

@@ -1,5 +1,5 @@
 import { practiceAreas } from '@shared/practice-areas'
-import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { createRouter, type RouteRecordRaw, type RouterHistory, type RouterOptions } from 'vue-router'
 import BlogIndexPage from './pages/BlogIndexPage.vue'
 import BlogPostPage from './pages/BlogPostPage.vue'
 import HomePage from './pages/HomePage.vue'
@@ -19,18 +19,7 @@ const routes: RouteRecordRaw[] = [
     props: { slug: a.slug },
   })),
   { path: '/admin/', name: 'admin', component: () => import('./pages/admin/AdminPage.vue') },
-  {
-    path: '/:pathMatch(.*)*',
-    name: 'not-found',
-    component: NotFoundPage,
-    // Same URL scheme as the server: add the trailing slash when that matches a page.
-    beforeEnter(to) {
-      if (!to.path.endsWith('/')) {
-        const withSlash = router.resolve({ path: `${to.path}/`, query: to.query, hash: to.hash })
-        if (withSlash.name !== 'not-found') return withSlash.fullPath
-      }
-    },
-  },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: NotFoundPage },
 ]
 
 const HEADER_OFFSET = 80
@@ -48,25 +37,38 @@ function waitFor(id: string, timeout = 1500): Promise<Element | null> {
   })
 }
 
-export const router = createRouter({
-  history: createWebHistory(),
-  strict: true,
-  routes,
-  async scrollBehavior(to, from, saved) {
-    if (saved) return saved
-    if (to.hash) {
-      let id = to.hash.slice(1)
-      try {
-        id = decodeURIComponent(id)
-      } catch {
-        /* keep raw */
-      }
-      const samePage = to.path === from.path
-      const el = await waitFor(id)
-      if (el) return { el, top: HEADER_OFFSET, behavior: samePage ? 'smooth' : 'instant' }
+/** One router per app instance: web history in the browser, memory history on the server. */
+export function createAppRouter(history: RouterHistory) {
+  const router = createRouter({
+    history,
+    strict: true,
+    routes,
+    scrollBehavior,
+  })
+  // Same URL scheme as the server: add the trailing slash when that matches a page.
+  router.beforeEach((to) => {
+    if (to.name === 'not-found' && !to.path.endsWith('/')) {
+      const withSlash = router.resolve({ path: `${to.path}/`, query: to.query, hash: to.hash })
+      if (withSlash.name !== 'not-found') return withSlash.fullPath
     }
-    if (to.path === from.path && to.hash === from.hash) return false
-    // 'instant' overrides the stylesheet's `scroll-behavior: smooth` on page changes.
-    return { top: 0, behavior: 'instant' }
-  },
-})
+  })
+  return router
+}
+
+const scrollBehavior: RouterOptions['scrollBehavior'] = async (to, from, saved) => {
+  if (saved) return saved
+  if (to.hash) {
+    let id = to.hash.slice(1)
+    try {
+      id = decodeURIComponent(id)
+    } catch {
+      /* keep raw */
+    }
+    const samePage = to.path === from.path
+    const el = await waitFor(id)
+    if (el) return { el, top: HEADER_OFFSET, behavior: samePage ? 'smooth' : 'instant' }
+  }
+  if (to.path === from.path && to.hash === from.hash) return false
+  // 'instant' overrides the stylesheet's `scroll-behavior: smooth` on page changes.
+  return { top: 0, behavior: 'instant' }
+}

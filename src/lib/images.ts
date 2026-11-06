@@ -33,4 +33,4 @@ export function coverSrcset(url: string | null | undefined): string | undefined 
 /** Placeholders for personal photos – replace the files to use real portraits. */
 export const portraitImage = '/images/placeholders/portrait.svg'
 export const avatarImage = '/images/placeholders/avatar.svg'
-export const logoImage = { src: '/images/logo-nv.webp', srcset: '/images/logo-nv.webp 1x, /images/logo-nv@2x.webp 2x' }
+export const logoImage = { src: '/images/logo-nv.webp', srcset: '/images/logo-nv.webp 1x, /images/logo-nv-2x.webp 2x' }

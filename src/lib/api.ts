@@ -1,5 +1,3 @@
-import { INITIAL_DATA_ID } from '@shared/api-paths'
-
 export class ApiError extends Error {
   readonly status: number
   constructor(status: number, message: string) {
@@ -8,28 +6,16 @@ export class ApiError extends Error {
   }
 }
 
-/** Responses the Worker inlined into the first HTML document (consumed once). */
-const initial: Record<string, unknown> = (() => {
-  const el = document.getElementById(INITIAL_DATA_ID)
-  if (!el?.textContent) return {}
-  try {
-    return JSON.parse(el.textContent) as Record<string, unknown>
-  } catch {
-    return {}
-  }
-})()
-
 const TTL = 60_000
 const cache = new Map<string, { at: number; value: unknown }>()
 
-/** GET a public API resource: inlined data → short-lived memory cache → network. */
+/** Stores a response that arrived another way (e.g. inlined into the first page). */
+export function primeCache(path: string, value: unknown) {
+  cache.set(path, { at: Date.now(), value })
+}
+
+/** GET a public API resource: short-lived memory cache → network. */
 export async function getJSON<T>(path: string): Promise<T> {
-  if (path in initial) {
-    const value = initial[path]
-    delete initial[path]
-    cache.set(path, { at: Date.now(), value })
-    return value as T
-  }
   const hit = cache.get(path)
   if (hit && Date.now() - hit.at < TTL) return hit.value as T
 

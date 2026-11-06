@@ -10,6 +10,8 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@shared': fileURLToPath(new URL('./shared', import.meta.url)),
+      // Server-render entry for the Worker (typed in worker/app-ssr.d.ts).
+      '@app-ssr': fileURLToPath(new URL('./src/entry-server.ts', import.meta.url)),
     },
   },
 })

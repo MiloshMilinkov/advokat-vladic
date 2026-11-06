@@ -29,6 +29,7 @@ let observer: IntersectionObserver | null = null
 watch(
   post,
   async (p) => {
+    if (import.meta.env.SSR) return
     observer?.disconnect()
     activeId.value = null
     if (!p?.toc.length || !('IntersectionObserver' in window)) return

@@ -51,9 +51,12 @@ categories.forEach((c, i) => {
 })
 out.push('')
 for (const p of posts) {
+  // Imported articles were last changed when they were published; using the import
+  // time instead would claim every article was "updated" on the day of the import.
+  const stamp = `${p.publishedAt}T00:00:00Z`
   out.push(
-    'INSERT INTO posts (slug, title, excerpt, seo_title, category_slug, cover_url, cover_alt, og_image_url, body_md, reading_minutes, published_at, status) VALUES (' +
-      [p.slug, p.title, p.excerpt, p.seoTitle ?? null, p.category, p.coverUrl ?? null, p.coverAlt ?? '', p.ogImageUrl ?? null, p.body, p.readingMinutes, p.publishedAt, p.status ?? 'published']
+    'INSERT INTO posts (slug, title, excerpt, seo_title, category_slug, cover_url, cover_alt, og_image_url, body_md, reading_minutes, published_at, status, created_at, updated_at) VALUES (' +
+      [p.slug, p.title, p.excerpt, p.seoTitle ?? null, p.category, p.coverUrl ?? null, p.coverAlt ?? '', p.ogImageUrl ?? null, p.body, p.readingMinutes, p.publishedAt, p.status ?? 'published', stamp, stamp]
         .map(sql)
         .join(', ') +
       ') ON CONFLICT(slug) DO NOTHING;',

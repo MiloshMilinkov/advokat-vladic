@@ -4,6 +4,7 @@
 import { apiPaths, INITIAL_DATA_ID } from '@shared/api-paths'
 import { adminHead, blogIndexHead, homeHead, notFoundHead, postHead, practiceHead, tariffHead, type HeadData } from '@shared/head'
 import { practiceAreaBySlug, practiceAreas } from '@shared/practice-areas'
+import { render } from '@app-ssr'
 import { handleAdmin } from './admin'
 import { getPublishedPost, listCategories, listPosts, sitemapEntries } from './db'
 import { error, json, type Env } from './http'
@@ -13,6 +14,8 @@ interface Page {
   status: number
   /** API responses inlined into the HTML, keyed by their canonical API path. */
   data: Record<string, unknown>
+  /** Render the Vue app into the HTML (false for the admin editor, which is browser-only). */
+  ssr: boolean
 }
 
 export default {
@@ -77,34 +80,36 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
 
 async function resolvePage(env: Env, path: string): Promise<Page> {
   const origin = env.SITE_URL
-  const notFound: Page = { head: notFoundHead(), status: 404, data: {} }
+  const notFound: Page = { head: notFoundHead(), status: 404, data: {}, ssr: true }
 
   if (path === '/') {
     const key = apiPaths.posts({ limit: 3 })
-    return { head: homeHead(origin), status: 200, data: { [key]: await listPosts(env.DB, { limit: 3 }) } }
+    return { head: homeHead(origin), status: 200, data: { [key]: await listPosts(env.DB, { limit: 3 }) }, ssr: true }
   }
   if (path === '/blog/') {
     const [posts, categories] = await Promise.all([listPosts(env.DB), listCategories(env.DB)])
-    return { head: blogIndexHead(origin), status: 200, data: { [apiPaths.posts()]: posts, [apiPaths.categories()]: categories } }
+    return { head: blogIndexHead(origin), status: 200, data: { [apiPaths.posts()]: posts, [apiPaths.categories()]: categories }, ssr: true }
   }
   const post = path.match(/^\/blog\/([a-z0-9-]+)\/$/)
   if (post) {
     const p = await getPublishedPost(env.DB, post[1])
-    if (!p) return notFound
+    // The article page renders its own "not found" state from this error entry.
+    if (!p) return { ...notFound, data: { [apiPaths.post(post[1])]: { __apiError: { status: 404, message: 'Članak nije pronađen.' } } } }
     return {
       head: postHead(origin, { ...p, categoryLabel: p.category.label, categorySlug: p.category.slug }),
       status: 200,
       data: { [apiPaths.post(p.slug)]: p },
+      ssr: true,
     }
   }
-  if (path === '/advokatska-tarifa/') return { head: tariffHead(origin), status: 200, data: {} }
-  if (path === '/admin/') return { head: adminHead(), status: 200, data: {} }
+  if (path === '/advokatska-tarifa/') return { head: tariffHead(origin), status: 200, data: {}, ssr: true }
+  if (path === '/admin/') return { head: adminHead(), status: 200, data: {}, ssr: false }
 
   const slug = path.slice(1, -1)
   const area = practiceAreaBySlug.get(slug)
   if (area) {
     const key = apiPaths.posts({ category: area.blogCategory, limit: 3 })
-    return { head: practiceHead(origin, slug)!, status: 200, data: { [key]: await listPosts(env.DB, { category: area.blogCategory, limit: 3 }) } }
+    return { head: practiceHead(origin, slug)!, status: 200, data: { [key]: await listPosts(env.DB, { category: area.blogCategory, limit: 3 }) }, ssr: true }
   }
   return notFound
 }
@@ -139,7 +144,8 @@ const isLocal = (url: URL) => /^(localhost|127\.0\.0\.1|\[::1\])$/.test(url.host
 
 const CSP = [
   "default-src 'self'",
-  "script-src 'self'",
+  // The hash allows the one-line inline script in index.html that sets the `js` class.
+  "script-src 'self' 'sha256-Du+OJKJSbdUgz5nrHeWWINvez6XKDDU/tyj/5c2uvwo='",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: https:",
   "font-src 'self'",
@@ -154,11 +160,20 @@ async function renderPage(request: Request, env: Env, url: URL, page: Page): Pro
   // Always fetch a fresh, unconditional copy of the SPA shell.
   const shell = await env.ASSETS.fetch(new Request(new URL('/', url), { method: 'GET' }))
   const origin = env.SITE_URL.replace(/\/$/, '')
+  const appHtml = page.ssr ? await renderApp(url, page.data) : null
 
   const rewritten = new HTMLRewriter()
     .on('title', { element: (el) => void el.setInnerContent(page.head.title) })
     .on('meta[name="description"]', { element: (el) => void el.setAttribute('content', page.head.description) })
     .on('head', { element: (el) => void el.append(headTags(page.head, origin), { html: true }) })
+    .on('link[rel="stylesheet"]', {
+      // Inline the site stylesheet so the first paint needs no extra round trip.
+      async element(el) {
+        const css = await stylesheetText(env, url, el.getAttribute('href'))
+        if (css !== null) el.replace(`<style>${css}</style>`, { html: true })
+      },
+    })
+    .on('div#app', { element: (el) => void (appHtml !== null && el.setInnerContent(appHtml, { html: true })) })
     .on('body', {
       element: (el) =>
         void el.append(`<script id="${INITIAL_DATA_ID}" type="application/json">${scriptJson(page.data)}</script>`, { html: true }),
@@ -179,6 +194,39 @@ async function renderPage(request: Request, env: Env, url: URL, page: Page): Pro
   if (page.head.noindex) headers.set('X-Robots-Tag', 'noindex')
 
   return new Response(request.method === 'HEAD' ? null : rewritten.body, { status: page.status, headers })
+}
+
+/** Built stylesheets have content-hashed names, so each one is read once per isolate. */
+const cssCache = new Map<string, string>()
+
+async function stylesheetText(env: Env, url: URL, href: string | null): Promise<string | null> {
+  if (!href || !/^\/assets\/[\w.-]+\.css$/.test(href)) return null
+  const hit = cssCache.get(href)
+  if (hit !== undefined) return hit
+  try {
+    const res = await env.ASSETS.fetch(new Request(new URL(href, url)))
+    if (!res.ok || !(res.headers.get('Content-Type') ?? '').includes('text/css')) return null
+    const css = await res.text()
+    if (/<\/style/i.test(css)) return null
+    cssCache.set(href, css)
+    return css
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Server-renders the Vue app for this URL. On failure the page is still served
+ * with an empty #app and the browser renders it instead, so a rendering bug can
+ * never take a page down.
+ */
+async function renderApp(url: URL, data: Record<string, unknown>): Promise<string | null> {
+  try {
+    return await render(url.pathname + url.search, data)
+  } catch (e) {
+    console.error('server render failed', url.pathname, e)
+    return null
+  }
 }
 
 // ------------------------------------------------------------------ SEO files
