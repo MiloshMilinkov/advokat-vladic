@@ -22,7 +22,7 @@
     {
       "binding": "DB",
       "database_name": "advokat-vladic",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "34e7d719-dae6-4b8f-b554-7929aa34bb09",
       "migrations_dir": "migrations"
     }
   ],
