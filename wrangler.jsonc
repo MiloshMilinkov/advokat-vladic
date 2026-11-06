@@ -1,0 +1,33 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "advokat-vladic",
+  "main": "./worker/index.ts",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": { "enabled": true },
+  "assets": {
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    // HTML navigations and /api go through the Worker (per-page SEO tags, inlined
+    // data, real 404s); hashed bundles and images are served straight from assets.
+    "run_worker_first": [
+      "/*",
+      "!/assets/*",
+      "!/images/*",
+      "!/favicon-32.png",
+      "!/apple-touch-icon.png"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "advokat-vladic",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    // Canonical origin used in <link rel=canonical>, Open Graph and the sitemap.
+    "SITE_URL": "https://advokatvladic.rs"
+  }
+}

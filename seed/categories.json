@@ -1,0 +1,10 @@
+[
+  { "slug": "radno-pravo", "label": "Radno pravo" },
+  { "slug": "porodicno-pravo", "label": "Porodično i nasledno pravo" },
+  { "slug": "imovinsko-pravo", "label": "Imovinsko pravo" },
+  { "slug": "izvrsenje", "label": "Izvršenje" },
+  { "slug": "naknada-stete", "label": "Naknada štete" },
+  { "slug": "privredno-pravo", "label": "Privredno pravo" },
+  { "slug": "krivicno-pravo", "label": "Krivično i prekršajno pravo" },
+  { "slug": "upravno-pravo", "label": "Upravno pravo" }
+]

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000" role="img" aria-label="Mesto za fotografiju">
+  <!-- Placeholder for the lawyer's portrait. Replace this file (or the path in src/lib/images.ts) with the real photo. -->
+  <defs>
+    <radialGradient id="bg" cx="70%" cy="0%" r="120%">
+      <stop offset="0" stop-color="#3a342d"/>
+      <stop offset=".6" stop-color="#1c1c1c"/>
+      <stop offset="1" stop-color="#121212"/>
+    </radialGradient>
+    <linearGradient id="fig" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity=".16"/>
+      <stop offset="1" stop-color="#fff" stop-opacity=".04"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bg)"/>
+  <circle cx="400" cy="390" r="150" fill="url(#fig)"/>
+  <path d="M130 1000c0-200 120-350 270-350s270 150 270 350z" fill="url(#fig)"/>
+  <path d="M400 640l-36 60 36 210 36-210z" fill="#c8a96a" fill-opacity=".18"/>
+</svg>
