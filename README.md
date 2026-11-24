@@ -7,6 +7,10 @@
 Vue 3 + TypeScript + Vite rebuild of the law office site, served by a Cloudflare
 Worker with the blog stored in **Cloudflare D1** (SQLite).
 
+**Live site:** https://advokat-vladic.milos300399.workers.dev
+
+![Advokatska kancelarija Vladić home page](docs/screenshot.jpg)
+
 ## What's inside
 
 | Path | Purpose |
