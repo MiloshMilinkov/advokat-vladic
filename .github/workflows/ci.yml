@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: MiloshMilinkov/.github/.github/workflows/node-ci.yml@main
+
+  # Off until the repo has CLOUDFLARE_API_TOKEN, CLOUDFLARE_ACCOUNT_ID and DEPLOY_FROM_CI=true.
+  deploy:
+    needs: ci
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_FROM_CI == 'true'
+    uses: MiloshMilinkov/.github/.github/workflows/deploy-worker.yml@main
+    secrets: inherit

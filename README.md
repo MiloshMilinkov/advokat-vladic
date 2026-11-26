@@ -1,5 +1,7 @@
 # Advokatska kancelarija Vladić – website
 
+[![CI](https://github.com/MiloshMilinkov/advokat-vladic/actions/workflows/ci.yml/badge.svg)](https://github.com/MiloshMilinkov/advokat-vladic/actions/workflows/ci.yml)
+
 > **© 2026 Miloš Milinkov. All rights reserved.** This repository is public for viewing only.
 > It is **not** open source: you may not copy, reuse, modify, deploy or redistribute any part of it,
 > including the design and content. See [LICENSE](LICENSE).

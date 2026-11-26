@@ -44,3 +44,7 @@ Vue 3, Vue Router, TypeScript, Vite with `@cloudflare/vite-plugin`, Cloudflare W
 - The Inter font is subset to the characters the site uses (`src/assets/fonts/inter-basic.woff2`, `inter-serbian.woff2`). New text with characters outside Latin and Serbian needs a new subset.
 - Schema changes go in a new numbered file in `migrations/`. Never edit an applied one.
 - Production D1 id is in `wrangler.jsonc`. `db:seed:remote` overwrites production posts, so never run it without the owner's OK.
+
+## CI
+
+`.github/workflows/ci.yml` calls the shared `node-ci.yml` in `MiloshMilinkov/.github`: it runs the `typecheck`, `lint`, `test` and `build` scripts that exist, plus a gitleaks scan. Check runs with `gh run list -L 3`. The deploy job stays off until the repo has the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets and `DEPLOY_FROM_CI=true`; until then deploy with `npm run deploy`.
