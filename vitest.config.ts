@@ -14,7 +14,7 @@ const path = (p: string) => fileURLToPath(new URL(p, import.meta.url))
 const wrangler = JSON.parse(
   readFileSync(path('./wrangler.jsonc'), 'utf8')
     .replace(/("(?:\\.|[^"\\])*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (_m, str: string | undefined) => str ?? '')
-    .replace(/,(\s*[}\]])/g, '$1'),
+    .replace(/("(?:\\.|[^"\\])*")|,(?=\s*[}\]])/g, (_m, str: string | undefined) => str ?? ''),
 ) as { compatibility_date: string; compatibility_flags?: string[] }
 
 const shell = readFileSync(path('./index.html'), 'utf8')

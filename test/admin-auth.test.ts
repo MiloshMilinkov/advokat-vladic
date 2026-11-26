@@ -39,7 +39,8 @@ describe.each(ROUTES)('$method $path', (route) => {
     expect(await res.json()).toEqual(UNAUTHORIZED)
   })
 
-  it.each([['Bearer '], [`bearer ${TEST_TOKEN}`], [`Basic ${TEST_TOKEN}`], [TEST_TOKEN], [`Bearer  ${TEST_TOKEN}`], [`Token ${TEST_TOKEN}`]])(
+  // 'Bearer' alone: Headers trims a trailing space, so an empty token cannot be sent.
+  it.each([['Bearer'], [`bearer ${TEST_TOKEN}`], [`Basic ${TEST_TOKEN}`], [TEST_TOKEN], [`Bearer  ${TEST_TOKEN}`], [`Token ${TEST_TOKEN}`]])(
     'rejects the header %j',
     async (authorization) => {
       expect((await send({ authorization })).status).toBe(401)

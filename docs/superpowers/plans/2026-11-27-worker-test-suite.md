@@ -174,3 +174,13 @@ Routes (`ROUTES`, used with `describe.each`): `GET /api/admin/session`, `GET /ap
 - [ ] **Step 4: Review** Run the `simplify` skill on the branch diff, then `code-review` at `medium`. Fix confirmed findings, rerun Step 3.
 - [ ] **Step 5: Append `## Review`** to this plan: findings, what was fixed, what was skipped and why, gaps found in worker code (left for the owner), test and typecheck results. No secrets.
 - [ ] **Step 6: Commit** `docs: list test commands, add How it was built, record review`. Ask the owner before pushing; after the push, check CI with `gh run list -L 3`.
+
+## Review
+
+- **Result:** `npm test` gives 214 passed and 3 expected failures, in about 2.6 s. Two runs in a row had identical results. `npm run typecheck` and `npm run build` pass. No changes to `worker/`, `shared/` or `src/`.
+- **Sanity checks (tests shown to fail on broken code):** an always-true `authorized()` fails 81 auth tests. A `render()` that throws fails the 10 page-content tests while the status-only checks still pass. Dropping the published filter in `listPosts` fails 4 query tests. Removing the `//host` guard from the URL check fails the 2 protocol-relative tests.
+- **Gap found in worker code, left for the owner:** `validatePost` accepts impossible dates (2026-02-30, 2026-04-31, 2026-02-29) because `Date.parse` rolls them over. It is pinned as `it.fails` tests that state the intended rule.
+- **Deviations from the plan:** `@cloudflare/vitest-plugin` replaces the deprecated `vitest-pool-workers`. `ASSETS` became a Miniflare service binding rather than a cast stub. Test data moved to `test/fixtures.ts`, so `token.ts` is gone. `wrangler.jsonc` is read directly, because importing wrangler cost about 0.9 s per start. `npm install-scripts approve` dropped workerd versions that wrangler still uses from `allowScripts`; they were restored.
+- **Simplify (4 reviewers) fixed:** the items above, plus `tsconfig.test.json` now extends the worker config, a single `authorization` option on `admin()`, and two duplicate tests removed. One problem surfaced along the way: `interface … extends import()` in `test/env.d.ts` was invalid, and `skipLibCheck` hid it.
+- **Simplify skipped:** `beforeAll` resets, kept per test for order independence. The per-route wrong-token matrix stays, because the task asks for every route. The `Request` cast is a real `cf` type gap. The alias block is duplicated because importing `vite.config.ts` would load the Cloudflare Vite plugin.
+- **Code review (medium):** 3 nits. Fixed: the `'Bearer '` case (Headers trims it, so it is now labelled `'Bearer'`) and the JSONC trailing-comma strip, which is now string-aware. Skipped: tests for the CHECK and 500 branches of `dbError`, since validation blocks those inputs first.
