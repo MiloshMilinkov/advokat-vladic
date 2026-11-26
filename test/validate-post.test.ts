@@ -2,7 +2,7 @@ import { readingMinutes } from '@shared/markdown'
 import type { PostInput } from '@shared/types'
 import { describe, expect, it } from 'vitest'
 import { validatePost } from '../worker/admin'
-import { validPost } from './helpers'
+import { validPost } from './fixtures'
 
 function accepted(body: unknown): PostInput {
   const r = validatePost(body)

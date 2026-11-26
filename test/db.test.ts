@@ -2,15 +2,14 @@ import { env } from 'cloudflare:workers'
 import { beforeEach, describe, expect, it } from 'vitest'
 import {
   adminCreatePost,
-  adminDeletePost,
-  adminUpdatePost,
   getPublishedPost,
   listAllCategories,
   listCategories,
   listPosts,
   sitemapEntries,
 } from '../worker/db'
-import { resetDb, SLUGS, validPost } from './helpers'
+import { SLUGS, validPost } from './fixtures'
+import { resetDb } from './helpers'
 
 const slugs = (rows: { slug: string }[]) => rows.map((r) => r.slug)
 
@@ -90,13 +89,8 @@ describe('categories', () => {
   })
 })
 
-describe('sitemap and admin writes', () => {
+describe('sitemapEntries', () => {
   it('lists only published posts in the sitemap', async () => {
     expect(slugs(await sitemapEntries(env.DB))).toEqual([SLUGS.second, SLUGS.family, SLUGS.first])
-  })
-
-  it('reports a missing id on update and delete', async () => {
-    expect(await adminUpdatePost(env.DB, 999999, validPost())).toBe(false)
-    expect(await adminDeletePost(env.DB, 999999)).toBe(false)
   })
 })

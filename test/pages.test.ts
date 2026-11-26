@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
-import { appHtml, call, resetDb, SLUGS } from './helpers'
-
-const SITE = 'https://advokatvladic.rs'
+import { SITE_URL as SITE, SLUGS } from './fixtures'
+import { appHtml, call, resetDb } from './helpers'
 
 beforeEach(resetDb)
 

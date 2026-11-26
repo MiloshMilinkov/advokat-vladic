@@ -49,6 +49,7 @@ npm install
 cp .dev.vars.example .dev.vars   # set ADMIN_TOKEN to any long random string
 npm run db:setup:local           # build seed, apply migrations, load posts
 npm run dev                      # http://localhost:5173 (Vite + Worker + local D1)
+npm test                         # Worker tests in workerd against an in-memory D1
 ```
 
 Admin: open `/admin/` and enter the `ADMIN_TOKEN`.
@@ -78,6 +79,13 @@ Personal photos are placeholders: `public/images/placeholders/portrait.svg` (abo
 Without configuration the form opens the visitor's e-mail client addressed to the office
 (same as the original site). Set `VITE_CONTACT_ENDPOINT` (e.g. a Formspree URL) at build
 time to post submissions instead.
+
+## How it was built
+
+Built with [Claude Code](https://claude.com/claude-code). The project rules and commands are in
+[CLAUDE.md](CLAUDE.md), feature specs and plans (with their review notes) in
+[docs/superpowers/](docs/superpowers/), and the general workflow in
+[claude-workflow](https://github.com/MiloshMilinkov/claude-workflow).
 
 ## License
 

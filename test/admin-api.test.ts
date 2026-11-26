@@ -1,7 +1,8 @@
 import { env } from 'cloudflare:workers'
 import type { AdminPost } from '@shared/types'
 import { beforeEach, describe, expect, it } from 'vitest'
-import { admin, postId, resetDb, SLUGS, validPost } from './helpers'
+import { SLUGS, validPost } from './fixtures'
+import { admin, postId, resetDb } from './helpers'
 
 const NOT_FOUND = { error: 'Članak nije pronađen.' }
 const countPosts = async () => (await env.DB.prepare('SELECT COUNT(*) AS n FROM posts').first<{ n: number }>())!.n

@@ -1,12 +1,8 @@
-// Bindings the test runtime provides (see vitest.config.ts). ASSETS is not a
-// binding in tests: helpers.ts passes a stub to the Worker instead.
+// Bindings the test runtime provides (see vitest.config.ts). Errors in this file
+// are hidden by skipLibCheck, so a broken declaration shows up as missing env fields.
 declare namespace Cloudflare {
-  interface Env extends Omit<import('../worker/http').Env, 'ASSETS'> {
+  type WorkerEnv = import('../worker/http').Env
+  interface Env extends WorkerEnv {
     TEST_MIGRATIONS: import('cloudflare:test').D1Migration[]
   }
-}
-
-declare module '*?raw' {
-  const content: string
-  export default content
 }
