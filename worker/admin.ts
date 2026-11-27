@@ -1,4 +1,5 @@
 import { readingMinutes } from '@shared/markdown'
+import { isCalendarDate } from '@shared/site'
 import type { PostInput } from '@shared/types'
 import { adminCreatePost, adminDeletePost, adminGetPost, adminListPosts, adminUpdatePost, listAllCategories } from './db'
 import { error, json, type Env } from './http'
@@ -21,7 +22,6 @@ async function authorized(request: Request, env: Env): Promise<boolean> {
 }
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
-const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 // Site-relative ("/images/…", but not protocol-relative "//host") or https URLs.
 const URL_RE = /^(\/(?!\/)[^\s]*|https:\/\/[^\s]+)$/
 
@@ -61,7 +61,7 @@ export function validatePost(body: unknown): Validation {
   if (v.ogImageUrl && !URL_RE.test(v.ogImageUrl)) return { ok: false, error: 'Adresa slike za deljenje mora početi sa / ili https://.' }
   if (v.coverAlt.length > 400) return { ok: false, error: 'Opis slike je predugačak.' }
   if (!v.bodyMd.trim() || v.bodyMd.length > 200_000) return { ok: false, error: 'Tekst članka je obavezan.' }
-  if (!DATE_RE.test(v.publishedAt) || Number.isNaN(Date.parse(v.publishedAt))) return { ok: false, error: 'Datum mora biti u formatu GGGG-MM-DD.' }
+  if (!isCalendarDate(v.publishedAt)) return { ok: false, error: 'Datum mora biti u formatu GGGG-MM-DD.' }
   if (!Number.isInteger(v.readingMinutes) || v.readingMinutes < 1 || v.readingMinutes > 240) v.readingMinutes = readingMinutes(v.bodyMd)
   return { ok: true, value: v }
 }
