@@ -115,8 +115,15 @@ describe('validatePost', () => {
   })
 })
 
-// Known gap, left for the owner: Date.parse rolls impossible days over
-// (2026-02-30 becomes 2 March), so they pass. Remove `.fails` once fixed.
-it.fails.each([['2026-02-30'], ['2026-04-31'], ['2026-02-29']])('rejects the impossible date %s', (publishedAt) => {
-  expect(rejection(validPost({ publishedAt }))).toBe(MSG.date)
+describe('calendar dates', () => {
+  it.each([['2026-02-30'], ['2026-04-31'], ['2026-02-29'], ['1900-02-29'], ['2026-00-10'], ['2026-01-32']])(
+    'rejects the impossible date %s',
+    (publishedAt) => {
+      expect(rejection(validPost({ publishedAt }))).toBe(MSG.date)
+    },
+  )
+
+  it.each([['2028-02-29'], ['2000-02-29'], ['2026-04-30'], ['2026-12-31']])('accepts the real date %s', (publishedAt) => {
+    expect(accepted(validPost({ publishedAt })).publishedAt).toBe(publishedAt)
+  })
 })

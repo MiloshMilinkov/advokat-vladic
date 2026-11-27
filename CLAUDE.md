@@ -55,7 +55,6 @@ Vue 3, Vue Router, TypeScript, Vite with `@cloudflare/vite-plugin`, Cloudflare W
 - `vitest.config.ts` configures the Worker with Miniflare options, never `wrangler.configPath`, so the production D1 id and `.dev.vars` stay out of tests. Keep it that way. The admin token in tests is the fake `TEST_TOKEN` (`test/fixtures.ts`).
 - Tests call the Worker's `fetch` directly (so a test can override `ADMIN_TOKEN`). `ASSETS` is a Miniflare service binding that returns the source `index.html` for every path, so the built-CSS inlining is not covered.
 - A failed server render still returns 200 with an empty `#app`, so page tests assert `appHtml()` content, not just the status.
-- Known gap, pinned with `it.fails`: `validatePost` accepts impossible dates such as 2026-02-30.
 - `@cloudflare/vitest-plugin` ships its own workerd. After bumping it, approve the new one with `npm install-scripts approve workerd@<version>`, then check `allowScripts` still lists wrangler's workerd (the command dropped it once).
 
 ## CI

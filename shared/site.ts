@@ -63,6 +63,14 @@ export const postTitle = (title: string, seoTitle?: string | null) => seoTitle |
 
 const MONTHS = ['januar', 'februar', 'mart', 'april', 'maj', 'jun', 'jul', 'avgust', 'septembar', 'oktobar', 'novembar', 'decembar']
 
+/** True for a real calendar date written as YYYY-MM-DD ("2026-02-30" and "2026-02-29" are not). */
+export function isCalendarDate(s: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false
+  // Date rolls impossible days over (Feb 30 → Mar 2), so round-trip and compare.
+  const d = new Date(`${s}T00:00:00Z`)
+  return !Number.isNaN(d.getTime()) && d.toISOString().slice(0, 10) === s
+}
+
 /** "2026-06-30" → "30. jun 2026." */
 export function formatDate(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number)
